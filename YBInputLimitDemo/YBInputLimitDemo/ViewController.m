@@ -33,30 +33,30 @@
     })];
     
     //* 不使用block
-//    [textfield setYBInputLimit:YBInputLimitModel
-//     .initialization
-//     .setInputLimitType(YBInputLimitType_numbers|YBInputLimitType_lettersSmall)
-//     .setMaxLength(10)
-//     .addTargetAndAction(self, @selector(sel0:))];
+    [textfield setYBInputLimit:YBInputLimitModel
+     .initialization
+     .setInputLimitType(YBInputLimitType_numbers|YBInputLimitType_lettersSmall)
+     .setMaxLength(10)
+     .addTargetAndAction(self, @selector(sel0:))];
     
     
     
     
     //* 常规实现
-//    YBInputLimitModel *model = [YBInputLimitModel new];
-//    model.inputLimitType = YBInputLimitType_numbers|YBInputLimitType_lettersSmall;
-//    model.maxLength = 10;
-//    [model setTextChanged:^(id observe){
-//        
-//    }];
-//    [textfield setYBInputLimit:model];
+    YBInputLimitModel *model = [YBInputLimitModel new];
+    model.inputLimitType = YBInputLimitType_numbers|YBInputLimitType_lettersSmall;
+    model.maxLength = 10;
+    [model setTextChanged:^(id observe){
+        
+    }];
+    [textfield setYBInputLimit:model];
     
     //* 不使用block
-//    YBInputLimitModel *model = [YBInputLimitModel new];
-//    model.inputLimitType = YBInputLimitType_numbers|YBInputLimitType_lettersSmall;
-//    model.maxLength = 10;
-//    [model addTargetOfTextChange:self action:@selector(sel0:)];
-//    [textfield setYBInputLimit:model];
+    YBInputLimitModel *model = [YBInputLimitModel new];
+    model.inputLimitType = YBInputLimitType_numbers|YBInputLimitType_lettersSmall;
+    model.maxLength = 10;
+    [model addTargetOfTextChange:self action:@selector(sel0:)];
+    [textfield setYBInputLimit:model];
 }
 
 - (void)sel0:(id)target {
