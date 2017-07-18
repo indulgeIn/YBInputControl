@@ -31,18 +31,9 @@
      .setTextChanged(^(id observe){
         
     })];
+
     
-    //* 不使用block
-//    [textfield setYBInputLimit:YBInputLimitModel
-//     .initialization
-//     .setInputLimitType(YBInputLimitType_numbers|YBInputLimitType_lettersSmall)
-//     .setMaxLength(10)
-//     .addTargetAndAction(self, @selector(sel0:))];
-    
-    
-    
-    
-    //* 常规实现
+//    //* 常规实现
 //    YBInputLimitModel *model = [YBInputLimitModel new];
 //    model.inputLimitType = YBInputLimitType_numbers|YBInputLimitType_lettersSmall;
 //    model.maxLength = 10;
@@ -50,13 +41,26 @@
 //        
 //    }];
 //    [textfield setYBInputLimit:model];
-    
-    //* 不使用block
+//    
+//    
+//    //* 不使用block
+//    [textfield setYBInputLimit:YBInputLimitModel
+//     .initialization
+//     .setInputLimitType(YBInputLimitType_numbers|YBInputLimitType_lettersSmall)
+//     .setMaxLength(10)
+//     .addTargetAndAction(self, @selector(sel0:))];
+//    
+//    
+//    //* 不使用block
 //    YBInputLimitModel *model = [YBInputLimitModel new];
 //    model.inputLimitType = YBInputLimitType_numbers|YBInputLimitType_lettersSmall;
 //    model.maxLength = 10;
 //    [model addTargetOfTextChange:self action:@selector(sel0:)];
 //    [textfield setYBInputLimit:model];
+//    
+//    
+//    //* 直接输入正则
+//    [textfield setYBInputLimit:YBInputLimitModel.initialization.setRegularStr(@"^[0-9]+$")];
 }
 
 - (void)sel0:(id)target {
