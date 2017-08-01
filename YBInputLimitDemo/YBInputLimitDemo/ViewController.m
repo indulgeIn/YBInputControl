@@ -19,6 +19,7 @@
     [super viewDidLoad];
     
     UITextField *textfield = [UITextField new];
+    textfield.placeholder = @"请输入内容";
     textfield.frame = CGRectMake(20, 100, 200, 50);
     [self.view addSubview:textfield];
     
@@ -28,8 +29,9 @@
      .initialization
      .setInputLimitType(YBInputLimitType_numbers|YBInputLimitType_lettersSmall)
      .setMaxLength(10)
-     .setTextChanged(^(id observe){
+     .setTextChanged(^(UITextField *observe){
         
+        NSLog(@"textchange : %@", observe.text);
     })];
 
     

@@ -31,7 +31,7 @@
             UITextField *tf = (UITextField *)self;
             tf.delegate = self;
             YBInputLimitModel *limitModel = value;
-            limitModel.textChangeInvocation?[tf addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged]:nil;
+            limitModel.textChangeInvocation||limitModel.textChanged?[tf addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged]:nil;
         } else {
             UITextView *tv = (UITextView *)self;
             tv.delegate = self;
