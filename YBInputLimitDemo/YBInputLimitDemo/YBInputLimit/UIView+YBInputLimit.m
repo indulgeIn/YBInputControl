@@ -17,7 +17,8 @@
 }
 
 -(id)valueForUndefinedKey:(NSString *)key {
-    if ([key isEqualToString:keyYBTextInputLimit] && ([self isKindOfClass:[UITextField class]] || [self isKindOfClass:[UITextView class]])) {
+    BOOL judgeType = [key isEqualToString:keyYBTextInputLimit] && ([self isKindOfClass:[UITextField class]] || [self isKindOfClass:[UITextView class]]);
+    if (judgeType) {
         
         return objc_getAssociatedObject(self, key.UTF8String);
     }
@@ -25,14 +26,14 @@
 }
 
 -(void)setValue:(id)value forUndefinedKey:(NSString *)key {
-    if ([key isEqualToString:keyYBTextInputLimit] && ([self isKindOfClass:[UITextField class]] || [self isKindOfClass:[UITextView class]])) {
+    if ([key isEqualToString:keyYBTextInputLimit]) {
         
         if ([self isKindOfClass:[UITextField class]]) {
             UITextField *tf = (UITextField *)self;
             tf.delegate = self;
             YBInputLimitModel *limitModel = value;
             limitModel.textChangeInvocation||limitModel.textChanged?[tf addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged]:nil;
-        } else {
+        } else if ([self isKindOfClass:[UITextView class]]) {
             UITextView *tv = (UITextView *)self;
             tv.delegate = self;
         }
@@ -51,8 +52,8 @@
     [self logic_textChangeWithObserve:textView];
 }
 
-
 #pragma mark *** for textfield ***
+
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     return [self logic_context:textField range:range string:string];
 }
@@ -60,21 +61,25 @@
     [self logic_textChangeWithObserve:textField];
 }
 
-
-
 #pragma mark *** 工具方法 ***
+
 - (void)logic_textChangeWithObserve:(id)observe {
-  
+    
+    if (!observe) {
+        return;
+    }
+    
     YBInputLimitModel *limitModel = [observe valueForKey:keyYBTextInputLimit];
     if (limitModel.textChangeInvocation) {
         UIView *selfObject = self;
         [limitModel.textChangeInvocation setArgument:&selfObject atIndex:2];
-        limitModel.textChangeInvocation?[limitModel.textChangeInvocation invoke]:nil;
+        [limitModel.textChangeInvocation invoke];
     }
     if (limitModel.textChanged) {
         limitModel.textChanged(observe);
     }
 }
+
 - (BOOL)logic_context:(id)context range:(NSRange)range string:(NSString *)string {
     
     //找不到配置的model
@@ -116,30 +121,23 @@
         }
     }
     
-    
     //输入限制
     if (resultStr.length > 0) {
         
         if (!limitModel.regularStr || limitModel.regularStr.length <= 0) {
             
-            
             return YES;
-            
         }
         
         if ([self satisfyStr:resultStr regularStr:limitModel.regularStr]) {
             
-            
             return YES;
-            
         } else {
             
             return NO;
-            
         }
         
     }
-    
     
     return YES;
 }

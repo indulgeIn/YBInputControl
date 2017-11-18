@@ -83,32 +83,31 @@
 
 #pragma mark *** setter ***
 - (void)setInputLimitType:(YBInputLimitType)inputLimitType {
+    
     _inputLimitType = inputLimitType;
     
-    
     if (inputLimitType == YBInputLimitType_none) {
+        return;
+    }
         
+    NSString *regularStr = @"";
+    
+    if (inputLimitType & YBInputLimitType_price) {
+        
+        NSString *tempStr = self.maxLength == NSUIntegerMax?@"":[NSString stringWithFormat:@"%ld", self.maxLength];
+       
+        regularStr = [NSString stringWithFormat:@"^(([1-9]\\d{0,%@})|0)(\\.\\d{0,2})?$", tempStr];
         
     } else {
         
-        NSString *regularStr = @"";
-        
-        if (inputLimitType & YBInputLimitType_price) {
-            
-            NSString *tempStr = self.maxLength == NSUIntegerMax?@"":[NSString stringWithFormat:@"%ld", self.maxLength];
-           
-            regularStr = [NSString stringWithFormat:@"^(([1-9]\\d{0,%@})|0)(\\.\\d{0,2})?$", tempStr];
-            
-        } else {
-            
-            regularStr = [NSString stringWithFormat:@"^[%@%@%@]*$",
-                          (inputLimitType & YBInputLimitType_numbers)?@"0-9":@"",
-                          (inputLimitType & YBInputLimitType_lettersSmall)?@"a-z":@"",
-                          (inputLimitType & YBInputLimitType_lettersBig)?@"A-Z":@""];
-        }
-        
-        self.regularStr = regularStr;
+        regularStr = [NSString stringWithFormat:@"^[%@%@%@]*$",
+                      (inputLimitType & YBInputLimitType_numbers)?@"0-9":@"",
+                      (inputLimitType & YBInputLimitType_lettersSmall)?@"a-z":@"",
+                      (inputLimitType & YBInputLimitType_lettersBig)?@"A-Z":@""];
     }
+    
+    self.regularStr = regularStr;
+    
     
 }
 
