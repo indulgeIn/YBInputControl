@@ -70,6 +70,12 @@
     }
     
     YBInputLimitModel *limitModel = [observe valueForKey:keyYBTextInputLimit];
+    if (limitModel.maxLength != NSUIntegerMax) {
+        NSString *text = [observe valueForKey:@"text"];
+        if (text.length > limitModel.maxLength) {
+            [observe setValue:[text substringToIndex:limitModel.maxLength] forKey:@"text"];
+        }
+    }
     if (limitModel.textChangeInvocation) {
         UIView *selfObject = self;
         [limitModel.textChangeInvocation setArgument:&selfObject atIndex:2];
