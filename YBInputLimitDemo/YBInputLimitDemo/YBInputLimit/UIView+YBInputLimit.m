@@ -19,7 +19,6 @@
 -(id)valueForUndefinedKey:(NSString *)key {
     BOOL judgeType = [key isEqualToString:keyYBTextInputLimit] && ([self isKindOfClass:[UITextField class]] || [self isKindOfClass:[UITextView class]]);
     if (judgeType) {
-        
         return objc_getAssociatedObject(self, key.UTF8String);
     }
     return nil;
@@ -129,22 +128,15 @@
     
     //输入限制
     if (resultStr.length > 0) {
-        
         if (!limitModel.regularStr || limitModel.regularStr.length <= 0) {
-            
             return YES;
         }
-        
         if ([self satisfyStr:resultStr regularStr:limitModel.regularStr]) {
-            
             return YES;
         } else {
-            
             return NO;
         }
-        
     }
-    
     return YES;
 }
 
