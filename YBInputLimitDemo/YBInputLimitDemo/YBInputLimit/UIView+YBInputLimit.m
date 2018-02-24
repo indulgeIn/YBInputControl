@@ -21,7 +21,7 @@
     if (judgeType) {
         return objc_getAssociatedObject(self, key.UTF8String);
     }
-    return nil;
+    return [super valueForUndefinedKey:key];
 }
 
 -(void)setValue:(id)value forUndefinedKey:(NSString *)key {
@@ -38,6 +38,8 @@
         }
         
         objc_setAssociatedObject(self, key.UTF8String, value, OBJC_ASSOCIATION_RETAIN);
+    } else {
+        [super setValue:value forUndefinedKey:key];
     }
 }
 

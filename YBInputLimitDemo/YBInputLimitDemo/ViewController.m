@@ -36,10 +36,9 @@
      .setInputLimitType(YBInputLimitType_numbers|YBInputLimitType_lettersSmall)
      .setMaxLength(10)
      .setTextChanged(^(UITextField *observe){
-        
+
         NSLog(@"textchange : %@", observe.text);
     })];
-
     
 //    //* 常规实现
 //    YBInputLimitModel *model = [YBInputLimitModel new];
