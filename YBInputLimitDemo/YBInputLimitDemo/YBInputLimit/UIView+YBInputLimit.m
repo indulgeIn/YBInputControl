@@ -11,12 +11,14 @@
 @implementation UIView (YBInputLimit)
 
 - (void)setYBInputLimit:(YBInputLimitModel *)model {
-    if (model&&[model isKindOfClass:[YBInputLimitModel class]]) {
+    BOOL validClass = [self isKindOfClass:[UITextView class]] || [self isKindOfClass:[UITextField class]];
+    BOOL validModel = model && [model isKindOfClass:[YBInputLimitModel class]];
+    if (validClass && validModel) {
         [self setValue:model forKey:keyYBTextInputLimit];
     }
 }
 
--(id)valueForUndefinedKey:(NSString *)key {
+- (id)valueForUndefinedKey:(NSString *)key {
     BOOL judgeType = [key isEqualToString:keyYBTextInputLimit] && ([self isKindOfClass:[UITextField class]] || [self isKindOfClass:[UITextView class]]);
     if (judgeType) {
         return objc_getAssociatedObject(self, key.UTF8String);
@@ -24,14 +26,14 @@
     return [super valueForUndefinedKey:key];
 }
 
--(void)setValue:(id)value forUndefinedKey:(NSString *)key {
+- (void)setValue:(id)value forUndefinedKey:(NSString *)key {
     if ([key isEqualToString:keyYBTextInputLimit]) {
         
         if ([self isKindOfClass:[UITextField class]]) {
             UITextField *tf = (UITextField *)self;
             tf.delegate = self;
             YBInputLimitModel *limitModel = value;
-            limitModel.textChangeInvocation||limitModel.textChanged?[tf addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged]:nil;
+            limitModel.textChangeInvocation || limitModel.textChanged?[tf addTarget:self action:@selector(textFieldDidChange:) forControlEvents : UIControlEventEditingChanged]:nil;
         } else if ([self isKindOfClass:[UITextView class]]) {
             UITextView *tv = (UITextView *)self;
             tv.delegate = self;
@@ -65,11 +67,9 @@
 #pragma mark *** 工具方法 ***
 
 - (void)logic_textChangeWithObserve:(id)observe {
-    
     if (!observe) {
         return;
     }
-    
     YBInputLimitModel *limitModel = [observe valueForKey:keyYBTextInputLimit];
     if (limitModel.maxLength != NSUIntegerMax) {
         NSString *text = [observe valueForKey:@"text"];
@@ -89,7 +89,6 @@
 
 - (BOOL)logic_context:(id)context range:(NSRange)range string:(NSString *)string {
     
-    //找不到配置的model
     if (![context valueForKey:keyYBTextInputLimit]) {
         return YES;
     }
