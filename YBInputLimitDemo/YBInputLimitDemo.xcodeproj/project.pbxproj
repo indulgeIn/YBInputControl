@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		700ABC6020561A8C00F86B9F /* UIView+YBInputLimit.m in Sources */ = {isa = PBXBuildFile; fileRef = 700ABC5C20561A8C00F86B9F /* UIView+YBInputLimit.m */; };
 		700ABC6120561A8C00F86B9F /* YBInputLimitModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 700ABC5F20561A8C00F86B9F /* YBInputLimitModel.m */; };
+		7091458920562DE80031B7A6 /* UIView+YBInputControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 7091458820562DE80031B7A6 /* UIView+YBInputControl.m */; };
 		EEE59BB81F1DD75300EE744D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE59BB71F1DD75300EE744D /* main.m */; };
 		EEE59BBB1F1DD75300EE744D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE59BBA1F1DD75300EE744D /* AppDelegate.m */; };
 		EEE59BBE1F1DD75300EE744D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE59BBD1F1DD75300EE744D /* ViewController.m */; };
@@ -23,6 +24,8 @@
 		700ABC5D20561A8C00F86B9F /* YBInputLimitConst.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YBInputLimitConst.h; sourceTree = "<group>"; };
 		700ABC5E20561A8C00F86B9F /* YBInputLimitModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YBInputLimitModel.h; sourceTree = "<group>"; };
 		700ABC5F20561A8C00F86B9F /* YBInputLimitModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YBInputLimitModel.m; sourceTree = "<group>"; };
+		7091458720562DE80031B7A6 /* UIView+YBInputControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+YBInputControl.h"; sourceTree = "<group>"; };
+		7091458820562DE80031B7A6 /* UIView+YBInputControl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+YBInputControl.m"; sourceTree = "<group>"; };
 		EEE59BB31F1DD75300EE744D /* YBInputLimitDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YBInputLimitDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEE59BB71F1DD75300EE744D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EEE59BB91F1DD75300EE744D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -58,6 +61,15 @@
 			path = YBInputLimit;
 			sourceTree = SOURCE_ROOT;
 		};
+		70914583205625C50031B7A6 /* YBInputControl */ = {
+			isa = PBXGroup;
+			children = (
+				7091458720562DE80031B7A6 /* UIView+YBInputControl.h */,
+				7091458820562DE80031B7A6 /* UIView+YBInputControl.m */,
+			);
+			path = YBInputControl;
+			sourceTree = SOURCE_ROOT;
+		};
 		EEE59BAA1F1DD75300EE744D = {
 			isa = PBXGroup;
 			children = (
@@ -77,6 +89,7 @@
 		EEE59BB51F1DD75300EE744D /* YBInputLimitDemo */ = {
 			isa = PBXGroup;
 			children = (
+				70914583205625C50031B7A6 /* YBInputControl */,
 				700ABC5A20561A8C00F86B9F /* YBInputLimit */,
 				EEE59BB91F1DD75300EE744D /* AppDelegate.h */,
 				EEE59BBA1F1DD75300EE744D /* AppDelegate.m */,
@@ -171,6 +184,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7091458920562DE80031B7A6 /* UIView+YBInputControl.m in Sources */,
 				EEE59BBE1F1DD75300EE744D /* ViewController.m in Sources */,
 				EEE59BBB1F1DD75300EE744D /* AppDelegate.m in Sources */,
 				700ABC6120561A8C00F86B9F /* YBInputLimitModel.m in Sources */,
