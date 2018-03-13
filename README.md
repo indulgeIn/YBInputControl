@@ -27,8 +27,8 @@ iOS文本输入控制解决方案-框架
     textfield.yb_inputCP = profile;
     
 
-    //取消功能
-    textfield.yb_inputCP = nil;
+    //取消功能
+    //textfield.yb_inputCP = nil;
     
 
     //同样可以按照以往的习惯，设置代理
