@@ -1,9 +1,9 @@
 //
 //  AppDelegate.h
-//  YBInputLimitDemo
+//  YBInputControlDemo
 //
-//  Created by cqdingwei@163.com on 2017/7/18.
-//  Copyright © 2017年 yangbo. All rights reserved.
+//  Created by 杨少 on 2018/3/13.
+//  Copyright © 2018年 杨波. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
