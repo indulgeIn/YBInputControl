@@ -20,7 +20,7 @@
     profile.maxLength = 10;
     profile.textControlType = YBTextControlType_numbers;
     //也可以直接使用使用正则表达式
-    //profile.regularStr = @"^[a-z]*$";
+    profile.regularStr = @"^[a-z]*$";
     [profile addTargetOfTextChange:self action:@selector(textChange:)];
     textfield.yb_inputCP = profile;
     
