@@ -20,9 +20,9 @@ iOS文本输入控制解决方案-框架
     //常规方法使用
     YBInputControlProfile *profile = [YBInputControlProfile new];
     profile.maxLength = 10;
-    profile.textControlType = YBTextControlType_numbers;
     //也可以直接使用使用正则表达式
-    profile.regularStr = @"^[a-z]*$";
+    //profile.regularStr = @"^[a-z]*$";
+    profile.textControlType = YBTextControlType_numbers;
     [profile addTargetOfTextChange:self action:@selector(textChange:)];
     textfield.yb_inputCP = profile;
     
