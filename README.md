@@ -1,5 +1,7 @@
 # YBInputControl
-一句代码实现文本输入（UITextView/UITextfield）的输入字符限制、长度限制、文本变化回调
+iOS文本输入控制解决方案-框架
+
+
 
 具体说明见简书地址：http://www.jianshu.com/p/bd70c24a7021
 
