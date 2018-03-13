@@ -39,17 +39,20 @@
     //常规方法使用
     YBInputControlProfile *profile = [YBInputControlProfile new];
     profile.maxLength = 10;
-//    profile.regularStr = @"^[a-z]*$";
+    //也可以直接使用使用正则表达式
+    //profile.regularStr = @"^[a-z]*$";
     profile.textControlType = YBTextControlType_numbers;
     [profile addTargetOfTextChange:self action:@selector(textChange:)];
     textfield.yb_inputCP = profile;
     
 
+
+    
     //取消功能
-//    textfield.yb_inputCP = nil;
+    //textfield.yb_inputCP = nil;
     
     
-    //同样可以设置代理
+    //同样可以按照以往的习惯，设置代理
     textfield.delegate = self;
     //特别注意
     //在给textField或textView设置了非自身的delegate，若实现了如下方法，将覆盖本框架的输入实时限制功能（长度限制功能基本有效）：
