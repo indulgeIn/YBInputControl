@@ -2,8 +2,9 @@
 iOS文本输入控制解决方案-框架
 
 
-
 具体说明见简书地址：http://www.jianshu.com/p/bd70c24a7021
+
+首先将 UIView+YBInputControl 的.h.m文件拖入工程，在需要使用的地方导入 UIView+YBInputControl.h 
 
     //* 注意1：如果不是输入描述性文本的情况下，建议把联想输入关闭（联想输入在输入之前无法监听，无法精确控制输入字符）
     textfield.autocorrectionType = UITextAutocorrectionTypeNo;
