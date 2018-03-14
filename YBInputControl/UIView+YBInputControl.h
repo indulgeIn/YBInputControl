@@ -10,13 +10,22 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+BOOL yb_shouldChangeCharactersIn(id _Nullable target, NSRange range, NSString * _Nullable string);
+void yb_textDidChange(id _Nullable target);
+
 typedef NS_ENUM(NSInteger, YBTextControlType) {
-    YBTextControlType_none = 0,  //无限制
-    YBTextControlType_numbers = 1 << 0,  //数字
-    YBTextControlType_lettersSmall = 1 << 1, //小写字母
-    YBTextControlType_lettersBig = 1 << 2,   //大写字母
-    YBTextControlType_price = 1 << 3,    //价格（小数点后最多输入两位）
-    YBTextControlType_custom = 1 << 4,    //自定义
+    YBTextControlType_none, //无限制
+    
+    YBTextControlType_number,   //数字
+    YBTextControlType_letter,   //字母（包含大小写）
+    YBTextControlType_letterSmall,  //小写字母
+    YBTextControlType_letterBig,    //大写字母
+    YBTextControlType_number_letterSmall,   //数字+小写字母
+    YBTextControlType_number_letterBig, //数字+大写字母
+    YBTextControlType_number_letter,    //数字+字母
+    
+    YBTextControlType_excludeInvisible, //去除不可见字符（包括空格、制表符、换页符等）
+    YBTextControlType_price,    //价格（小数点后最多输入两位）
 };
 
 
@@ -28,7 +37,7 @@ typedef NS_ENUM(NSInteger, YBTextControlType) {
 @property (nonatomic, assign) NSUInteger maxLength;
 
 /**
- 限制输入的文本类型（可多选）
+ 限制输入的文本类型（单选，在内部其实是配置了regularStr属性）
  */
 @property (nonatomic, assign) YBTextControlType textControlType;
 
@@ -50,6 +59,7 @@ typedef NS_ENUM(NSInteger, YBTextControlType) {
 - (void)addTargetOfTextChange:(id)target action:(SEL)action;
 
 
+
 /**
  链式配置方法（对应属性配置）
  */
@@ -61,7 +71,14 @@ typedef NS_ENUM(NSInteger, YBTextControlType) {
 - (YBInputControlProfile *(^)(id target, SEL action))set_targetOfTextChange;
 
 
-@property (nonatomic, assign, readonly) BOOL cancelTextControlBefore;
+
+//键盘索引和键盘类型，当设置了 textControlType 内部会自动配置，当然你也可以自己配置
+@property(nonatomic) UITextAutocorrectionType autocorrectionType;
+@property(nonatomic) UIKeyboardType keyboardType;
+
+//取消输入前回调的长度判断
+@property (nonatomic, assign, readonly) BOOL cancelTextLengthControlBefore;
+//文本变化方法体
 @property (nonatomic, strong, nullable, readonly) NSInvocation *textChangeInvocation;
 
 @end

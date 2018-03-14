@@ -20,20 +20,26 @@ static id _tempDelegateIsRespondsSel(id target, SEL sel) {
 }
 
 static BOOL judgeRegular(NSString *contentStr, NSString *regularStr) {
-    NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:regularStr options:0 error:nil];
+    NSError *error;
+    NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:regularStr options:0 error:&error];
+    if (error) {
+        return YES;
+    }
     NSArray *results = [regex matchesInString:contentStr options:0 range:NSMakeRange(0, contentStr.length)];
     return results.count > 0;
 }
 
-static BOOL shouldChangeCharactersIn(id target, NSRange range, NSString *string) {
-    if (!objc_getAssociatedObject(target, key_Profile)) {
+BOOL yb_shouldChangeCharactersIn(id target, NSRange range, NSString *string) {
+    if (!target) {
+        return YES;
+    }
+    YBInputControlProfile *profile = objc_getAssociatedObject(target, key_Profile);
+    if (!profile) {
         return YES;
     }
     
-    YBInputControlProfile *profile = objc_getAssociatedObject(target, key_Profile);
-    
+    //计算若输入成功的字符串
     NSString *nowStr = [target valueForKey:@"text"];
-    
     NSMutableString *resultStr = [NSMutableString stringWithString:nowStr];
     if (string.length == 0) {
         [resultStr deleteCharactersInRange:range];
@@ -44,47 +50,54 @@ static BOOL shouldChangeCharactersIn(id target, NSRange range, NSString *string)
             [resultStr replaceCharactersInRange:range withString:string];
         }
     }
-    
+    //长度判断
     if (profile.maxLength != NSUIntegerMax) {
-        if (!profile.cancelTextControlBefore && resultStr.length > profile.maxLength) {
+        if (!profile.cancelTextLengthControlBefore && resultStr.length > profile.maxLength) {
             return NO;
         }
     }
-    
+    //正则表达式匹配
     if (resultStr.length > 0) {
         if (!profile.regularStr || profile.regularStr.length <= 0) {
             return YES;
         }
-        if (judgeRegular(resultStr, profile.regularStr)) {
-            return YES;
-        } else {
-            return NO;
-        }
+        return judgeRegular(resultStr, profile.regularStr);
     }
     return YES;
 }
 
-static void textDidChange(id tagert) {
-    if (!tagert) {
+void yb_textDidChange(id target) {
+    if (!target) {
         return;
     }
-    YBInputControlProfile *profile = [tagert valueForKey:@"yb_inputCP"];
+    YBInputControlProfile *profile = objc_getAssociatedObject(target, key_Profile);
     if (!profile) {
         return;
     }
-    if (profile.maxLength != NSUIntegerMax && [tagert valueForKey:@"markedTextRange"] == nil) {
-        //这里是为了避免联想输入超出长度限制
-        NSString *text = [tagert valueForKey:@"text"];
-        if (text.length > profile.maxLength) {
-            [tagert setValue:[text substringToIndex:profile.maxLength] forKey:@"text"];
+    
+    //内容适配
+    if (profile.maxLength != NSUIntegerMax && [target valueForKey:@"markedTextRange"] == nil) {
+        
+        NSString *resultText = [target valueForKey:@"text"];
+        //先内容过滤
+        if (profile.textControlType == YBTextControlType_excludeInvisible) {
+            resultText = [[target valueForKey:@"text"] stringByReplacingOccurrencesOfString:@" " withString:@""];
+        }
+        //再判断长度
+        if (resultText.length > profile.maxLength) {
+            [target setValue:[resultText substringToIndex:profile.maxLength] forKey:@"text"];
+        } else {
+            [target setValue:resultText forKey:@"text"];
         }
     }
+    
+    //回调
     if (profile.textChangeInvocation) {
-        [profile.textChangeInvocation setArgument:&tagert atIndex:2];
+        [profile.textChangeInvocation setArgument:&target atIndex:2];
         [profile.textChangeInvocation invoke];
     }
     if (profile.textChanged) {
-        profile.textChanged(tagert);
+        profile.textChanged(target);
     }
 }
 
@@ -92,7 +105,7 @@ static void textDidChange(id tagert) {
 
 @interface YBInputControlProfile ()
 
-@property (nonatomic, assign) BOOL cancelTextControlBefore;
+@property (nonatomic, assign) BOOL cancelTextLengthControlBefore;
 @property (nonatomic, strong, nullable) NSInvocation *textChangeInvocation;
 
 @end
@@ -119,33 +132,86 @@ static void textDidChange(id tagert) {
 }
 
 - (void)setTextControlType:(YBTextControlType)textControlType {
-    @synchronized(self) {
-        _textControlType = textControlType;
-        if (textControlType == YBTextControlType_none) {
+    _textControlType = textControlType;
+    
+    switch (textControlType) {
+        case YBTextControlType_none: {
             self.regularStr = @"";
-            return;
+            self.keyboardType = UIKeyboardTypeDefault;
+            self.autocorrectionType = UITextAutocorrectionTypeDefault;
+            self.cancelTextLengthControlBefore = YES;
         }
-        if (textControlType & YBTextControlType_custom) {
-            return;
+            break;
+        case YBTextControlType_number: {
+            self.regularStr = @"^[0-9]*$";
+            self.keyboardType = UIKeyboardTypeNumberPad;
+            self.autocorrectionType = UITextAutocorrectionTypeNo;
+            self.cancelTextLengthControlBefore = NO;
         }
-        NSString *regularStr = @"";
-        if (textControlType & YBTextControlType_price) {
+            break;
+        case YBTextControlType_letter: {
+            self.regularStr = @"^[a-zA-Z]*$";
+            self.keyboardType = UIKeyboardTypeASCIICapable;
+            self.autocorrectionType = UITextAutocorrectionTypeNo;
+            self.cancelTextLengthControlBefore = NO;
+        }
+        case YBTextControlType_letterSmall: {
+            self.regularStr = @"^[a-z]*$";
+            self.keyboardType = UIKeyboardTypeASCIICapable;
+            self.autocorrectionType = UITextAutocorrectionTypeNo;
+            self.cancelTextLengthControlBefore = NO;
+        }
+            break;
+        case YBTextControlType_letterBig: {
+            self.regularStr = @"^[A-Z]*$";
+            self.keyboardType = UIKeyboardTypeASCIICapable;
+            self.autocorrectionType = UITextAutocorrectionTypeNo;
+            self.cancelTextLengthControlBefore = NO;
+        }
+            break;
+        case YBTextControlType_number_letter: {
+            self.regularStr = @"^[0-9a-zA-Z]*$";
+            self.keyboardType = UIKeyboardTypeASCIICapable;
+            self.autocorrectionType = UITextAutocorrectionTypeNo;
+            self.cancelTextLengthControlBefore = NO;
+        }
+            break;
+        case YBTextControlType_number_letterSmall: {
+            self.regularStr = @"^[0-9a-z]*$";
+            self.keyboardType = UIKeyboardTypeASCIICapable;
+            self.autocorrectionType = UITextAutocorrectionTypeNo;
+            self.cancelTextLengthControlBefore = NO;
+        }
+            break;
+        case YBTextControlType_number_letterBig: {
+            self.regularStr = @"^[0-9A-Z]*$";
+            self.keyboardType = UIKeyboardTypeASCIICapable;
+            self.autocorrectionType = UITextAutocorrectionTypeNo;
+            self.cancelTextLengthControlBefore = NO;
+        }
+            break;
+        case YBTextControlType_price: {
             NSString *tempStr = self.maxLength == NSUIntegerMax?@"":[NSString stringWithFormat:@"%ld", (unsigned long)self.maxLength];
-            regularStr = [NSString stringWithFormat:@"^(([1-9]\\d{0,%@})|0)(\\.\\d{0,2})?$", tempStr];
-        } else {
-            regularStr = [NSString stringWithFormat:@"^[%@%@%@]*$",
-                          (textControlType & YBTextControlType_numbers)?@"0-9":@"",
-                          (textControlType & YBTextControlType_lettersSmall)?@"a-z":@"",
-                          (textControlType & YBTextControlType_lettersBig)?@"A-Z":@""];
+            self.regularStr = [NSString stringWithFormat:@"^(([1-9]\\d{0,%@})|0)(\\.\\d{0,2})?$", tempStr];
+            self.keyboardType = UIKeyboardTypeDecimalPad;
+            self.autocorrectionType = UITextAutocorrectionTypeNo;
+            self.cancelTextLengthControlBefore = NO;
         }
-        self.regularStr = regularStr;
+            break;
+        case YBTextControlType_excludeInvisible: {
+            self.regularStr = @"";
+            self.keyboardType = UIKeyboardTypeDefault;
+            self.autocorrectionType = UITextAutocorrectionTypeDefault;
+            self.cancelTextLengthControlBefore = YES;
+        }
+            break;
+            
+        default:
+            
+            break;
     }
 }
 
-- (void)setRegularStr:(NSString *)regularStr {
-    self.cancelTextControlBefore = regularStr.length <= 0;
-    _regularStr = regularStr;
-}
 
 + (YBInputControlProfile *)creat {
     YBInputControlProfile *profile = [YBInputControlProfile new];
@@ -191,6 +257,7 @@ static void textDidChange(id tagert) {
 
 @implementation UITextField (YBInputControl)
 
+#pragma mark insert logic to selector--setDelegate:
 + (void)load {
     if ([NSStringFromClass(self) isEqualToString:@"UITextField"]) {
         Method m1 = class_getInstanceMethod(self, @selector(setDelegate:));
@@ -227,10 +294,10 @@ static void textDidChange(id tagert) {
         if (yb_inputCP && [yb_inputCP isKindOfClass:YBInputControlProfile.self]) {
             objc_setAssociatedObject(self, key_Profile, yb_inputCP, OBJC_ASSOCIATION_RETAIN);
             
-            UITextField *tf = (UITextField *)self;
-            tf.delegate = self;
-            YBInputControlProfile *profile = yb_inputCP;
-            profile.textChangeInvocation || profile.textChanged ? [tf addTarget:self action:@selector(textFieldDidChange:) forControlEvents : UIControlEventEditingChanged]:nil;
+            self.delegate = self;
+            self.keyboardType = yb_inputCP.keyboardType;
+            self.autocorrectionType = yb_inputCP.autocorrectionType;
+            yb_inputCP.textChangeInvocation || yb_inputCP.textChanged ? [self addTarget:self action:@selector(textFieldDidChange:) forControlEvents : UIControlEventEditingChanged]:nil;
         } else {
             objc_setAssociatedObject(self, key_Profile, nil, OBJC_ASSOCIATION_RETAIN);
         }
@@ -246,10 +313,10 @@ static void textDidChange(id tagert) {
     if (temp_d) {
         return [temp_d textField:textField shouldChangeCharactersInRange:range replacementString:string];
     }
-    return shouldChangeCharactersIn(textField, range, string);
+    return yb_shouldChangeCharactersIn(textField, range, string);
 }
 - (void)textFieldDidChange:(UITextField *)textField {
-    textDidChange(textField);
+    yb_textDidChange(textField);
 }
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
@@ -314,8 +381,11 @@ static void textDidChange(id tagert) {
         if (yb_inputCP && [yb_inputCP isKindOfClass:YBInputControlProfile.self]) {
             objc_setAssociatedObject(self, key_Profile, yb_inputCP, OBJC_ASSOCIATION_RETAIN);
             
-            UITextView *tv = (UITextView *)self;
-            tv.delegate = self;
+            if (!self.delegate) {
+                self.delegate = self;
+            }
+            self.keyboardType = yb_inputCP.keyboardType;
+            self.autocorrectionType = yb_inputCP.autocorrectionType;
         } else {
             objc_setAssociatedObject(self, key_Profile, nil, OBJC_ASSOCIATION_RETAIN);
         }
@@ -327,73 +397,10 @@ static void textDidChange(id tagert) {
 
 #pragma mark UITextViewDelegate
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        return [temp_d textView:textView shouldChangeTextInRange:range replacementText:text];
-    }
-    return shouldChangeCharactersIn(textView, range, text);
+    return yb_shouldChangeCharactersIn(textView, range, text);
 }
 - (void)textViewDidChange:(UITextView *)textView {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        [temp_d textViewDidChange:textView];
-    }
-    textDidChange(textView);
-}
-
-- (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        return [temp_d textViewShouldBeginEditing:textView];
-    }
-    return YES;
-}
-- (BOOL)textViewShouldEndEditing:(UITextView *)textView {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        return [temp_d textViewShouldEndEditing:textView];
-    }
-    return YES;
-}
-- (void)textViewDidBeginEditing:(UITextView *)textView {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        [temp_d textViewDidBeginEditing:textView];
-    }
-}
-- (void)textViewDidEndEditing:(UITextView *)textView {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        [temp_d textViewDidEndEditing:textView];
-    }
-}
-- (void)textViewDidChangeSelection:(UITextView *)textView {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        [temp_d textViewDidChangeSelection:textView];
-    }
-}
-- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange interaction:(UITextItemInteraction)interaction {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        if (@available(iOS 10.0, *)) {
-            return [temp_d textView:textView shouldInteractWithURL:URL inRange:characterRange interaction:interaction];
-        } else {
-            // Fallback on earlier versions
-        }
-    }
-    return YES;
-}
-- (BOOL)textView:(UITextView *)textView shouldInteractWithTextAttachment:(NSTextAttachment *)textAttachment inRange:(NSRange)characterRange interaction:(UITextItemInteraction)interaction {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        if (@available(iOS 10.0, *)) {
-            return [temp_d textView:textView shouldInteractWithTextAttachment:textAttachment inRange:characterRange interaction:interaction];
-        } else {
-            // Fallback on earlier versions
-        }
-    }
-    return YES;
+    yb_textDidChange(textView);
 }
 
 @end
