@@ -28,8 +28,7 @@ iOS文本输入控制-框架：轻松实现文本输入字符类型控制、字�
 
 ### 常规方法使用：
 
-<pre><code>
-YBInputControlProfile *profile = [YBInputControlProfile new];
+<pre><code>YBInputControlProfile *profile = [YBInputControlProfile new];
 profile.maxLength = 10;
 profile.textControlType = YBTextControlType_excludeInvisible;
 [profile addTargetOfTextChange:self action:@selector(textChange:)];
@@ -38,8 +37,7 @@ textfield.yb_inputCP = profile;
 
 ### 链式语法使用：
 
-<pre><code>
-textfield.yb_inputCP = YBInputControlProfile.creat.set_maxLength(10).set_textControlType(YBTextControlType_letter).set_textChanged(^(id obj){
+<pre><code>textfield.yb_inputCP = YBInputControlProfile.creat.set_maxLength(10).set_textControlType(YBTextControlType_letter).set_textChanged(^(id obj){
     NSLog(@"%@", [obj valueForKey:@"text"]);
 });
 </code></pre>
@@ -49,8 +47,7 @@ textfield.yb_inputCP = YBInputControlProfile.creat.set_maxLength(10).set_textCon
 
 ### 取消功能：
 
-<pre><code>
-textfield.yb_inputCP = nil;
+<pre><code>textfield.yb_inputCP = nil;
 </code></pre>
 
 
@@ -58,8 +55,7 @@ textfield.yb_inputCP = nil;
 
 如果你想使用自己的正则表达式可以使用`YBInputControlProfile`类的这个属性：
 
-<pre><code>
-profile.regularStr = @"^[a-z]*$";
+<pre><code>profile.regularStr = @"^[a-z]*$";
 </code></pre>
 
 若你在设置`textControlType`之后或者唯一设置了`regularStr`，你的正则表达式将会生效，但是你需要注意以下几个问题（当然，若使用`textControlType`配置类型，框架内部会处理下列问题）：
@@ -73,14 +69,12 @@ profile.regularStr = @"^[a-z]*$";
 
 你仍然可以监听`UITextField`的`delegate`，框架已经做了特殊处理，你可以在任何地方使用：
 
-<pre><code>
-textfield.delegate = self;
+<pre><code>textfield.delegate = self;
 </code></pre>
 
 注意：若实现了如下方法，将覆盖本框架的输入实时限制功能（其他方法可以像往常一样使用）：
 
-<pre><code>
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+<pre><code>- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     //如果你仍然想要框架的实时判断输入功能，需要调用一个共有函数
     return yb_shouldChangeCharactersIn(textField, range, string);
 }
@@ -93,8 +87,7 @@ textfield.delegate = self;
 `UITextView`的使用和`UITextField`几乎一样，但是有个地方存在差异。由于`UITextView`的继承特性等一系列复杂的原因，暂时无法减少对其的侵入性。
 所以如果你配置了`yb_inputCP`过后，还监听了代理:`textView.delegate = self;`那么该框架的功能将会失效，若你仍然想使其有效，必须实现如下操作:
 
-<pre><code>
-- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+<pre><code>- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
    return yb_shouldChangeCharactersIn(textView, range, text);
 }
 - (void)textViewDidChange:(UITextView *)textView {
