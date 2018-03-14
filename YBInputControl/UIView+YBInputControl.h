@@ -40,8 +40,7 @@ typedef NS_ENUM(NSInteger, YBTextControlType) {
 /**
  文本变化回调（observer为UITextFiled或UITextView）
  */
-- (void)setTextChanged:(void (^)(id observer))textChanged;
-- (void (^)(id))textChanged;
+@property (nonatomic, copy, nullable) void(^textChanged)(id observe);
 
 /**
  添加文本变化监听
@@ -49,7 +48,6 @@ typedef NS_ENUM(NSInteger, YBTextControlType) {
  @param action 方法（方法参数为UITextFiled或UITextView）
  */
 - (void)addTargetOfTextChange:(id)target action:(SEL)action;
-@property (nonatomic, strong, nullable) NSInvocation *textChangeInvocation;
 
 
 /**
@@ -61,6 +59,10 @@ typedef NS_ENUM(NSInteger, YBTextControlType) {
 - (YBInputControlProfile *(^)(NSUInteger maxLength))set_maxLength;
 - (YBInputControlProfile *(^)(void (^textChanged)(id observe)))set_textChanged;
 - (YBInputControlProfile *(^)(id target, SEL action))set_targetOfTextChange;
+
+
+@property (nonatomic, assign, readonly) BOOL cancelTextControlBefore;
+@property (nonatomic, strong, nullable, readonly) NSInvocation *textChangeInvocation;
 
 @end
 

@@ -9,36 +9,6 @@
 #import "UIView+YBInputControl.h"
 #import <objc/runtime.h>
 
-#define InsertLogicToSelector \
-+ (void)load {\
-Method m1 = class_getInstanceMethod(self, @selector(setDelegate:));\
-Method m2 = class_getInstanceMethod(self, @selector(customSetDelegate:));\
-if (m1 && m2) {\
-    method_exchangeImplementations(m1, m2);\
-}\
-}\
-- (void)customSetDelegate:(id)delegate {\
-    @synchronized(self) {\
-        if (objc_getAssociatedObject(self, key_Profile)) {\
-            if (!delegate) {\
-                [self customSetDelegate:nil];\
-                objc_setAssociatedObject(self, key_Profile, nil, OBJC_ASSOCIATION_RETAIN);\
-            } else if (delegate != self) {\
-                [self customSetDelegate:self];\
-                objc_setAssociatedObject(self, key_tempDelegate, delegate, OBJC_ASSOCIATION_ASSIGN);\
-            } else if (delegate == self) {\
-                if (self.delegate && self.delegate != self) {\
-                    objc_setAssociatedObject(self, key_tempDelegate, self.delegate, OBJC_ASSOCIATION_ASSIGN);\
-                }\
-                [self customSetDelegate:self];\
-            }\
-        } else {\
-            [self customSetDelegate:delegate];\
-        }\
-    }\
-}
-
-
 #define tempDelegateIsRespondsSel _tempDelegateIsRespondsSel(self, _cmd)
 
 static const void *key_Profile = &key_Profile;
@@ -76,7 +46,7 @@ static BOOL shouldChangeCharactersIn(id target, NSRange range, NSString *string)
     }
     
     if (profile.maxLength != NSUIntegerMax) {
-        if (resultStr.length > profile.maxLength) {
+        if (!profile.cancelTextControlBefore && resultStr.length > profile.maxLength) {
             return NO;
         }
     }
@@ -102,7 +72,7 @@ static void textDidChange(id tagert) {
     if (!profile) {
         return;
     }
-    if (profile.maxLength != NSUIntegerMax) {
+    if (profile.maxLength != NSUIntegerMax && [tagert valueForKey:@"markedTextRange"] == nil) {
         //这里是为了避免联想输入超出长度限制
         NSString *text = [tagert valueForKey:@"text"];
         if (text.length > profile.maxLength) {
@@ -122,7 +92,8 @@ static void textDidChange(id tagert) {
 
 @interface YBInputControlProfile ()
 
-@property (nonatomic, copy, nullable) void(^textChanged)(id observe);
+@property (nonatomic, assign) BOOL cancelTextControlBefore;
+@property (nonatomic, strong, nullable) NSInvocation *textChangeInvocation;
 
 @end
 
@@ -150,12 +121,16 @@ static void textDidChange(id tagert) {
 - (void)setTextControlType:(YBTextControlType)textControlType {
     @synchronized(self) {
         _textControlType = textControlType;
-        if (textControlType & YBTextControlType_none || textControlType & YBTextControlType_custom) {
+        if (textControlType == YBTextControlType_none) {
+            self.regularStr = @"";
+            return;
+        }
+        if (textControlType & YBTextControlType_custom) {
             return;
         }
         NSString *regularStr = @"";
         if (textControlType & YBTextControlType_price) {
-            NSString *tempStr = self.maxLength == NSUIntegerMax?@"":[NSString stringWithFormat:@"%ld", self.maxLength];
+            NSString *tempStr = self.maxLength == NSUIntegerMax?@"":[NSString stringWithFormat:@"%ld", (unsigned long)self.maxLength];
             regularStr = [NSString stringWithFormat:@"^(([1-9]\\d{0,%@})|0)(\\.\\d{0,2})?$", tempStr];
         } else {
             regularStr = [NSString stringWithFormat:@"^[%@%@%@]*$",
@@ -163,15 +138,12 @@ static void textDidChange(id tagert) {
                           (textControlType & YBTextControlType_lettersSmall)?@"a-z":@"",
                           (textControlType & YBTextControlType_lettersBig)?@"A-Z":@""];
         }
-        _regularStr = regularStr;
+        self.regularStr = regularStr;
     }
 }
 
 - (void)setRegularStr:(NSString *)regularStr {
-    if (!regularStr) {
-        return;
-    }
-    _textControlType = YBTextControlType_custom;
+    self.cancelTextControlBefore = regularStr.length <= 0;
     _regularStr = regularStr;
 }
 
@@ -219,34 +191,35 @@ static void textDidChange(id tagert) {
 
 @implementation UITextField (YBInputControl)
 
-InsertLogicToSelector
-//+ (void)load {
-//    Method m1 = class_getInstanceMethod(self, @selector(setDelegate:));
-//    Method m2 = class_getInstanceMethod(self, @selector(customSetDelegate:));
-//    if (m1 && m2) {
-//        method_exchangeImplementations(m1, m2);
-//    }
-//}
-//- (void)customSetDelegate:(id)delegate {
-//    @synchronized(self) {
-//        if (objc_getAssociatedObject(self, key_Profile)) {
-//            if (!delegate) {
-//                [self customSetDelegate:nil];
-//                objc_setAssociatedObject(self, key_Profile, nil, OBJC_ASSOCIATION_RETAIN);
-//            } else if (delegate != self) {
-//                [self customSetDelegate:self];
-//                objc_setAssociatedObject(self, key_tempDelegate, delegate, OBJC_ASSOCIATION_ASSIGN);
-//            } else if (delegate == self) {
-//                if (self.delegate && self.delegate != self) {
-//                    objc_setAssociatedObject(self, key_tempDelegate, self.delegate, OBJC_ASSOCIATION_ASSIGN);
-//                }
-//                [self customSetDelegate:self];
-//            }
-//        } else {
-//            [self customSetDelegate:delegate];
-//        }
-//    }
-//}
++ (void)load {
+    if ([NSStringFromClass(self) isEqualToString:@"UITextField"]) {
+        Method m1 = class_getInstanceMethod(self, @selector(setDelegate:));
+        Method m2 = class_getInstanceMethod(self, @selector(customSetDelegate:));
+        if (m1 && m2) {
+            method_exchangeImplementations(m1, m2);
+        }
+    }
+}
+- (void)customSetDelegate:(id)delegate {
+    @synchronized(self) {
+        if (objc_getAssociatedObject(self, key_Profile)) {
+            if (!delegate) {
+                [self customSetDelegate:nil];
+                objc_setAssociatedObject(self, key_Profile, nil, OBJC_ASSOCIATION_RETAIN);
+            } else if (delegate != self) {
+                [self customSetDelegate:self];
+                objc_setAssociatedObject(self, key_tempDelegate, delegate, OBJC_ASSOCIATION_ASSIGN);
+            } else if (delegate == self) {
+                if (self.delegate && self.delegate != self) {
+                    objc_setAssociatedObject(self, key_tempDelegate, self.delegate, OBJC_ASSOCIATION_ASSIGN);
+                }
+                [self customSetDelegate:self];
+            }
+        } else {
+            [self customSetDelegate:delegate];
+        }
+    }
+}
 
 #pragma mark getter setter
 - (void)setYb_inputCP:(YBInputControlProfile *)yb_inputCP {
@@ -334,8 +307,6 @@ InsertLogicToSelector
 
 
 @implementation UITextView (YBInputControl)
-
-InsertLogicToSelector
 
 #pragma mark getter setter
 - (void)setYb_inputCP:(YBInputControlProfile *)yb_inputCP {

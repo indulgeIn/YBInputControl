@@ -13,7 +13,7 @@
 		7057FA532057D29800C7766F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7057FA522057D29800C7766F /* Assets.xcassets */; };
 		7057FA562057D29800C7766F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7057FA542057D29800C7766F /* LaunchScreen.storyboard */; };
 		7057FA592057D29800C7766F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7057FA582057D29800C7766F /* main.m */; };
-		7057FA622057D34400C7766F /* UIView+YBInputControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 7057FA612057D34300C7766F /* UIView+YBInputControl.m */; };
+		708702852058BB1C0095767D /* UIView+YBInputControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 708702842058BB1C0095767D /* UIView+YBInputControl.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,8 +27,8 @@
 		7057FA552057D29800C7766F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7057FA572057D29800C7766F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7057FA582057D29800C7766F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		7057FA602057D34300C7766F /* UIView+YBInputControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+YBInputControl.h"; sourceTree = "<group>"; };
-		7057FA612057D34300C7766F /* UIView+YBInputControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+YBInputControl.m"; sourceTree = "<group>"; };
+		708702832058BB1C0095767D /* UIView+YBInputControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+YBInputControl.h"; sourceTree = "<group>"; };
+		708702842058BB1C0095767D /* UIView+YBInputControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+YBInputControl.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,7 +61,7 @@
 		7057FA482057D29800C7766F /* YBInputControlDemo */ = {
 			isa = PBXGroup;
 			children = (
-				7057FA5F2057D34300C7766F /* YBInputControl */,
+				708702822058BB1C0095767D /* YBInputControl */,
 				7057FA492057D29800C7766F /* AppDelegate.h */,
 				7057FA4A2057D29800C7766F /* AppDelegate.m */,
 				7057FA4C2057D29800C7766F /* ViewController.h */,
@@ -75,11 +75,11 @@
 			path = YBInputControlDemo;
 			sourceTree = "<group>";
 		};
-		7057FA5F2057D34300C7766F /* YBInputControl */ = {
+		708702822058BB1C0095767D /* YBInputControl */ = {
 			isa = PBXGroup;
 			children = (
-				7057FA602057D34300C7766F /* UIView+YBInputControl.h */,
-				7057FA612057D34300C7766F /* UIView+YBInputControl.m */,
+				708702832058BB1C0095767D /* UIView+YBInputControl.h */,
+				708702842058BB1C0095767D /* UIView+YBInputControl.m */,
 			);
 			path = YBInputControl;
 			sourceTree = SOURCE_ROOT;
@@ -157,7 +157,7 @@
 			files = (
 				7057FA4E2057D29800C7766F /* ViewController.m in Sources */,
 				7057FA592057D29800C7766F /* main.m in Sources */,
-				7057FA622057D34400C7766F /* UIView+YBInputControl.m in Sources */,
+				708702852058BB1C0095767D /* UIView+YBInputControl.m in Sources */,
 				7057FA4B2057D29800C7766F /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
