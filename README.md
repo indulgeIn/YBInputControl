@@ -24,15 +24,15 @@ iOS文本输入控制-框架：轻松实现文本输入字符类型控制、字�
 UITextField 使用
 ----
 
-常规方法使用：
+**常规方法使用：**
 
     YBInputControlProfile *profile = [YBInputControlProfile new];
     profile.maxLength = 10;
     profile.textControlType = YBTextControlType_excludeInvisible;
     [profile addTargetOfTextChange:self action:@selector(textChange:)];
     textfield.yb_inputCP = profile;
-    
-链式语法使用：
+    
+**链式语法使用：**
 
     textfield.yb_inputCP = YBInputControlProfile.creat.set_maxLength(10).set_textControlType(YBTextControlType_letter).set_textChanged(^(id obj){
         NSLog(@"%@", [obj valueForKey:@"text"]);
@@ -40,7 +40,7 @@ UITextField 使用
    
 如你所见，文本变化的回调提供了block闭包形式和添加监听者+SEL的方式。
 
-取消功能：
+**取消功能：**
 
     textfield.yb_inputCP = nil;
 
@@ -67,9 +67,9 @@ UITextField 使用
 注意：若实现了如下方法，将覆盖本框架的输入实时限制功能（其他方法可以像往常一样使用）：
 
     - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
-        //如果你仍然想要框架的实时判断输入功能，需要调用一个共有函数
-        return yb_shouldChangeCharactersIn(textField, range, string);
-    }
+        //如果你仍然想要框架的实时判断输入功能，需要调用一个共有函数
+        return yb_shouldChangeCharactersIn(textField, range, string);
+    }
 
 
 
@@ -81,9 +81,9 @@ UITextView 使用
 那么该框架的功能将会失效，若你仍然想使其有效，必须实现如下操作:
 
     - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
-       return yb_shouldChangeCharactersIn(textView, range, text);
+        return yb_shouldChangeCharactersIn(textView, range, text);
     }
     - (void)textViewDidChange:(UITextView *)textView {
-       yb_textDidChange(textView);
+        yb_textDidChange(textView);
     }
 
