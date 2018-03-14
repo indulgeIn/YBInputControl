@@ -1,5 +1,5 @@
 # YBInputControl
-iOS文本输入控制解决方案-框架
+iOS文本输入控制-框架
 
 使用须知
 ====
