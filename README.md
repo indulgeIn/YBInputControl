@@ -27,7 +27,6 @@ iOS文本输入控制-框架：轻松实现文本输入字符类型控制、字�
 
 ## UITextField 使用
 
-
 ### 常规方法使用：
 
 <pre><code>
@@ -37,7 +36,7 @@ profile.textControlType = YBTextControlType_excludeInvisible;
 [profile addTargetOfTextChange:self action:@selector(textChange:)];
 textfield.yb_inputCP = profile;
 </code></pre>
-    
+
 ### 链式语法使用：
 
 <pre><code>
