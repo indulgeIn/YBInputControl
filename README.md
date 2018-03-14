@@ -92,9 +92,8 @@ textfield.delegate = self;
 ## UITextView 使用
 
 
-`UITextView`的使用和`UITextField`几乎一样，但是有个地方存在差异。由于`UITextView`的继承特性等一系列复杂的原因，暂时无法减少对其的侵入性，所以如果你配置了`yb_inputCP`过后，还监听了代理:
-    textView.delegate = self;
-那么该框架的功能将会失效，若你仍然想使其有效，必须实现如下操作:
+`UITextView`的使用和`UITextField`几乎一样，但是有个地方存在差异。由于`UITextView`的继承特性等一系列复杂的原因，暂时无法减少对其的侵入性。
+所以如果你配置了`yb_inputCP`过后，还监听了代理:`textView.delegate = self;`那么该框架的功能将会失效，若你仍然想使其有效，必须实现如下操作:
 
 <pre><code>
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
