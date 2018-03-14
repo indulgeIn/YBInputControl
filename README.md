@@ -18,8 +18,7 @@ iOS文本输入控制-框架：轻松实现文本输入字符类型控制、字�
 
 该框架分别在`UITextField`和`UITextView`的分类中拓展了一个属性:
 
-<pre><code>
-@property (nonatomic, strong, nullable) YBInputControlProfile *yb_inputCP;
+<pre><code>@property (nonatomic, strong, nullable) YBInputControlProfile *yb_inputCP;
 </code></pre>
     
 使用方法就是为该属性赋值。这里通过`YBInputControlProfile`类进行文本控制，控制的具体配置都在该类的属性中。
