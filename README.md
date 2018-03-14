@@ -30,7 +30,7 @@ UITextField 使用
     profile.maxLength = 10;
     profile.textControlType = YBTextControlType_excludeInvisible;
     [profile addTargetOfTextChange:self action:@selector(textChange:)];
-    textfield.yb_inputCP = profile;
+    textfield.yb_inputCP = profile;
     
 链式语法使用：
 
@@ -46,6 +46,7 @@ UITextField 使用
 
 
 **设置自己的正则表达式：**
+
 如果你想使用自己的正则表达式可以使用`YBInputControlProfile`类的这个属性：
 
     profile.regularStr = @"^[a-z]*$";
@@ -58,6 +59,7 @@ UITextField 使用
 
 
 **关于侵入性的说明**
+
 你仍然可以监听`UITextField`的`delegate`，框架已经做了特殊处理，你可以在任何地方使用：
 
     textfield.delegate = self;
@@ -78,10 +80,10 @@ UITextView 使用
     textView.delegate = self;
 那么该框架的功能将会失效，若你仍然想使其有效，必须实现如下操作:
 
-      - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
-          return yb_shouldChangeCharactersIn(textView, range, text);
-      }
-      - (void)textViewDidChange:(UITextView *)textView {
-          yb_textDidChange(textView);
-      }
+    - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+       return yb_shouldChangeCharactersIn(textView, range, text);
+    }
+    - (void)textViewDidChange:(UITextView *)textView {
+       yb_textDidChange(textView);
+    }
 
