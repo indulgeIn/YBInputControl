@@ -31,18 +31,17 @@
     [self.view addSubview:textfield];
   
     //链式语法使用
-//    textfield.yb_inputCP = YBInputControlProfile.creat.set_maxLength(10).set_textControlType(YBTextControlType_lettersBig).set_textChanged(^(id obj){
-//        NSLog(@"%@", [obj valueForKey:@"text"]);
-//    });
+    textfield.yb_inputCP = YBInputControlProfile.creat.set_maxLength(10).set_textControlType(YBTextControlType_letter).set_textChanged(^(id obj){
+        NSLog(@"%@", [obj valueForKey:@"text"]);
+    });
     
     //常规方法使用
-    YBInputControlProfile *profile = [YBInputControlProfile new];
-    //profile.regularStr = @"^[a-z]*$";
-    profile.maxLength = 10;
-    profile.textControlType = YBTextControlType_excludeInvisible;
-    [profile addTargetOfTextChange:self action:@selector(textChange:)];
-    textfield.yb_inputCP = profile;
-    
+//    YBInputControlProfile *profile = [YBInputControlProfile new];
+//    profile.maxLength = 10;
+//    profile.textControlType = YBTextControlType_excludeInvisible;
+//    [profile addTargetOfTextChange:self action:@selector(textChange:)];
+//    textfield.yb_inputCP = profile;
+//    profile.regularStr = @"^[a-z]*$";
  
     //取消功能
     //textfield.yb_inputCP = nil;
@@ -71,6 +70,7 @@
 
 #pragma mark UITextFieldDelegate
 //- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+//    //如果你仍然想要框架的实时判断输入功能，需要调用一个共有函数
 //    return yb_shouldChangeCharactersIn(textField, range, string);
 //}
 - (void)textFieldDidBeginEditing:(UITextField *)textField {
