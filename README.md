@@ -32,6 +32,7 @@ UITextField 使用
     [profile addTargetOfTextChange:self action:@selector(textChange:)];
     textfield.yb_inputCP = profile;
     
+    
 **链式语法使用：**
 
     textfield.yb_inputCP = YBInputControlProfile.creat.set_maxLength(10).set_textControlType(YBTextControlType_letter).set_textChanged(^(id obj){
@@ -40,9 +41,11 @@ UITextField 使用
    
 如你所见，文本变化的回调提供了block闭包形式和添加监听者+SEL的方式。
 
+
 **取消功能：**
 
     textfield.yb_inputCP = nil;
+
 
 
 **设置自己的正则表达式：**
@@ -66,10 +69,10 @@ UITextField 使用
 
 注意：若实现了如下方法，将覆盖本框架的输入实时限制功能（其他方法可以像往常一样使用）：
 
-    - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
-        //如果你仍然想要框架的实时判断输入功能，需要调用一个共有函数
-        return yb_shouldChangeCharactersIn(textField, range, string);
-    }
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    //如果你仍然想要框架的实时判断输入功能，需要调用一个共有函数
+    return yb_shouldChangeCharactersIn(textField, range, string);
+}
 
 
 
@@ -80,10 +83,10 @@ UITextView 使用
     textView.delegate = self;
 那么该框架的功能将会失效，若你仍然想使其有效，必须实现如下操作:
 
-    - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
-        return yb_shouldChangeCharactersIn(textView, range, text);
-    }
-    - (void)textViewDidChange:(UITextView *)textView {
-        yb_textDidChange(textView);
-    }
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+    return yb_shouldChangeCharactersIn(textView, range, text);
+}
+- (void)textViewDidChange:(UITextView *)textView {
+    yb_textDidChange(textView);
+}
 
