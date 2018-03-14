@@ -7,7 +7,7 @@ iOS文本输入控制-框架：轻松实现文本输入字符类型控制、字�
 # 使用须知
 
 
-文本输入解决方案和框架原理讲解请看简书：
+文本输入解决方案和框架原理讲解请看简书：https://www.jianshu.com/p/0e527df5c1ef
 
 首先将`UIView+YBInputControl`的`.h.m`文件拖入工程，在需要使用的地方导入`UIView+YBInputControl.h`
 
