@@ -34,7 +34,6 @@ iOS文本输入控制-框架：轻松实现文本输入字符类型控制、字�
     [profile addTargetOfTextChange:self action:@selector(textChange:)];
     textfield.yb_inputCP = profile;
     
-    
 ### 链式语法使用：
 
     textfield.yb_inputCP = YBInputControlProfile.creat.set_maxLength(10).set_textControlType(YBTextControlType_letter).set_textChanged(^(id obj){
