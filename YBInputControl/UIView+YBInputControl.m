@@ -274,9 +274,6 @@ void yb_textDidChange(id target) {
         if ([self.delegate_inside isKindOfClass:UITextField.self]) {
             _protocol = objc_getProtocol("UITextFieldDelegate");
         }
-        if ([self.delegate_inside isKindOfClass:UITextView.self]) {
-            _protocol = objc_getProtocol("UITextViewDelegate");
-        }
     }
     return _protocol;
 }
