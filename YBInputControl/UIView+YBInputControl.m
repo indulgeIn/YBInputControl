@@ -9,15 +9,8 @@
 #import "UIView+YBInputControl.h"
 #import <objc/runtime.h>
 
-#define tempDelegateIsRespondsSel _tempDelegateIsRespondsSel(self, _cmd)
-
 static const void *key_Profile = &key_Profile;
 static const void *key_tempDelegate = &key_tempDelegate;
-
-static id _tempDelegateIsRespondsSel(id target, SEL sel) {
-    id tempDelegate = objc_getAssociatedObject(target, key_tempDelegate);
-    return (tempDelegate && [tempDelegate respondsToSelector:sel]) ? tempDelegate : nil;
-}
 
 static BOOL judgeRegular(NSString *contentStr, NSString *regularStr) {
     NSError *error;
@@ -28,7 +21,6 @@ static BOOL judgeRegular(NSString *contentStr, NSString *regularStr) {
     NSArray *results = [regex matchesInString:contentStr options:0 range:NSMakeRange(0, contentStr.length)];
     return results.count > 0;
 }
-
 BOOL yb_shouldChangeCharactersIn(id target, NSRange range, NSString *string) {
     if (!target) {
         return YES;
@@ -37,7 +29,6 @@ BOOL yb_shouldChangeCharactersIn(id target, NSRange range, NSString *string) {
     if (!profile) {
         return YES;
     }
-    
     //计算若输入成功的字符串
     NSString *nowStr = [target valueForKey:@"text"];
     NSMutableString *resultStr = [NSMutableString stringWithString:nowStr];
@@ -65,7 +56,6 @@ BOOL yb_shouldChangeCharactersIn(id target, NSRange range, NSString *string) {
     }
     return YES;
 }
-
 void yb_textDidChange(id target) {
     if (!target) {
         return;
@@ -74,10 +64,8 @@ void yb_textDidChange(id target) {
     if (!profile) {
         return;
     }
-    
     //内容适配
     if (profile.maxLength != NSUIntegerMax && [target valueForKey:@"markedTextRange"] == nil) {
-        
         NSString *resultText = [target valueForKey:@"text"];
         //先内容过滤
         if (profile.textControlType == YBTextControlType_excludeInvisible) {
@@ -90,7 +78,6 @@ void yb_textDidChange(id target) {
             [target setValue:resultText forKey:@"text"];
         }
     }
-    
     //回调
     if (profile.textChangeInvocation) {
         [profile.textChangeInvocation setArgument:&target atIndex:2];
@@ -104,14 +91,10 @@ void yb_textDidChange(id target) {
 
 
 @interface YBInputControlProfile ()
-
 @property (nonatomic, assign) BOOL cancelTextLengthControlBefore;
 @property (nonatomic, strong, nullable) NSInvocation *textChangeInvocation;
-
 @end
-
 @implementation YBInputControlProfile
-
 - (instancetype)init
 {
     self = [super init];
@@ -120,7 +103,6 @@ void yb_textDidChange(id target) {
     }
     return self;
 }
-
 - (void)addTargetOfTextChange:(id)target action:(SEL)action {
     NSInvocation *invocation = nil;
     if (target && action) {
@@ -130,7 +112,6 @@ void yb_textDidChange(id target) {
     }
     self.textChangeInvocation = invocation;
 }
-
 - (void)setTextControlType:(YBTextControlType)textControlType {
     _textControlType = textControlType;
     
@@ -155,6 +136,7 @@ void yb_textDidChange(id target) {
             self.autocorrectionType = UITextAutocorrectionTypeNo;
             self.cancelTextLengthControlBefore = NO;
         }
+            break;
         case YBTextControlType_letterSmall: {
             self.regularStr = @"^[a-z]*$";
             self.keyboardType = UIKeyboardTypeASCIICapable;
@@ -205,14 +187,10 @@ void yb_textDidChange(id target) {
             self.cancelTextLengthControlBefore = YES;
         }
             break;
-            
         default:
-            
             break;
     }
 }
-
-
 + (YBInputControlProfile *)creat {
     YBInputControlProfile *profile = [YBInputControlProfile new];
     return profile;
@@ -251,12 +229,64 @@ void yb_textDidChange(id target) {
         return self;
     };
 }
+@end
 
+
+@interface YBInputControlTempDelegate : NSObject <UITextFieldDelegate>
+@property (nonatomic, weak) id delegate_inside;
+@property (nonatomic, weak) id delegate_outside;
+@property (nonatomic, strong) Protocol *protocol;
+@end
+@implementation YBInputControlTempDelegate
+- (BOOL)respondsToSelector:(SEL)aSelector {
+    struct objc_method_description des = protocol_getMethodDescription(self.protocol, aSelector, NO, YES);
+    if (des.types == NULL) {
+        return [super respondsToSelector:aSelector];
+    }
+    if ([self.delegate_inside respondsToSelector:aSelector] || [self.delegate_outside respondsToSelector:aSelector]) {
+        return YES;
+    }
+    return [super respondsToSelector:aSelector];
+}
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    NSLog(@"%@", NSStringFromSelector(_cmd));
+}
+- (void)forwardInvocation:(NSInvocation *)anInvocation {
+    SEL sel = anInvocation.selector;
+    BOOL isResponds = NO;
+    if ([self.delegate_inside respondsToSelector:sel]) {
+        isResponds = YES;
+        [anInvocation invokeWithTarget:self.delegate_inside];
+    }
+    if ([self.delegate_outside respondsToSelector:sel]) {
+        isResponds = YES;
+        [anInvocation invokeWithTarget:self.delegate_outside];
+    }
+    if (!isResponds) {
+        [self doesNotRecognizeSelector:sel];
+    }
+}
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
+    NSMethodSignature *sig_inside = [self.delegate_inside methodSignatureForSelector:aSelector];
+    NSMethodSignature *sig_outside = [self.delegate_outside methodSignatureForSelector:aSelector];
+    NSMethodSignature *result_sig = sig_inside?:sig_outside?:nil;
+    return result_sig;
+}
+- (Protocol *)protocol {
+    if (!_protocol) {
+        if ([self.delegate_inside isKindOfClass:UITextField.self]) {
+            _protocol = objc_getProtocol("UITextFieldDelegate");
+        }
+        if ([self.delegate_inside isKindOfClass:UITextView.self]) {
+            _protocol = objc_getProtocol("UITextViewDelegate");
+        }
+    }
+    return _protocol;
+}
 @end
 
 
 @implementation UITextField (YBInputControl)
-
 #pragma mark insert logic to selector--setDelegate:
 + (void)load {
     if ([NSStringFromClass(self) isEqualToString:@"UITextField"]) {
@@ -270,18 +300,13 @@ void yb_textDidChange(id target) {
 - (void)customSetDelegate:(id)delegate {
     @synchronized(self) {
         if (objc_getAssociatedObject(self, key_Profile)) {
-            if (!delegate) {
-                [self customSetDelegate:nil];
-                objc_setAssociatedObject(self, key_Profile, nil, OBJC_ASSOCIATION_RETAIN);
-            } else if (delegate != self) {
-                [self customSetDelegate:self];
-                objc_setAssociatedObject(self, key_tempDelegate, delegate, OBJC_ASSOCIATION_ASSIGN);
-            } else if (delegate == self) {
-                if (self.delegate && self.delegate != self) {
-                    objc_setAssociatedObject(self, key_tempDelegate, self.delegate, OBJC_ASSOCIATION_ASSIGN);
-                }
-                [self customSetDelegate:self];
+            YBInputControlTempDelegate *tempDelegate = [YBInputControlTempDelegate new];
+            tempDelegate.delegate_inside = self;
+            if (delegate != self) {
+                tempDelegate.delegate_outside = delegate;
             }
+            [self customSetDelegate:tempDelegate];
+            objc_setAssociatedObject(self, key_tempDelegate, tempDelegate, OBJC_ASSOCIATION_RETAIN);
         } else {
             [self customSetDelegate:delegate];
         }
@@ -309,72 +334,41 @@ void yb_textDidChange(id target) {
 
 #pragma mark UITextFieldDelegate
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        return [temp_d textField:textField shouldChangeCharactersInRange:range replacementString:string];
-    }
     return yb_shouldChangeCharactersIn(textField, range, string);
 }
 - (void)textFieldDidChange:(UITextField *)textField {
     yb_textDidChange(textField);
 }
 
-- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        return [temp_d textFieldShouldBeginEditing:textField];
-    }
-    return YES;
-}
-- (void)textFieldDidBeginEditing:(UITextField *)textField {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        [temp_d textFieldDidBeginEditing:textField];
-    }
-}
-- (BOOL)textFieldShouldEndEditing:(UITextField *)textField {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        [temp_d textFieldShouldEndEditing:textField];
-    }
-    return YES;
-}
-- (void)textFieldDidEndEditing:(UITextField *)textField {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        [temp_d textFieldDidEndEditing:textField];
-    }
-}
-- (void)textFieldDidEndEditing:(UITextField *)textField reason:(UITextFieldDidEndEditingReason)reason {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        if (@available(iOS 10.0, *)) {
-            [temp_d textFieldDidEndEditing:textField reason:reason];
-        } else {
-            // Fallback on earlier versions
-        }
-    }
-}
-- (BOOL)textFieldShouldClear:(UITextField *)textField {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        return [temp_d textFieldShouldClear:textField];
-    }
-    return YES;
-}
-- (BOOL)textFieldShouldReturn:(UITextField *)textField {
-    id temp_d = tempDelegateIsRespondsSel;
-    if (temp_d) {
-        return [temp_d textFieldShouldReturn:textField];
-    }
-    return YES;
-}
-
 @end
 
 
 @implementation UITextView (YBInputControl)
-
+#pragma mark insert logic to selector--setDelegate:
++ (void)load {
+    if ([NSStringFromClass(self) isEqualToString:@"UITextField"]) {
+        Method m1 = class_getInstanceMethod(self, @selector(setDelegate:));
+        Method m2 = class_getInstanceMethod(self, @selector(customSetDelegate:));
+        if (m1 && m2) {
+            method_exchangeImplementations(m1, m2);
+        }
+    }
+}
+- (void)customSetDelegate:(id)delegate {
+    @synchronized(self) {
+        if (objc_getAssociatedObject(self, key_Profile)) {
+            YBInputControlTempDelegate *tempDelegate = [YBInputControlTempDelegate new];
+            tempDelegate.delegate_inside = self;
+            if (delegate != self) {
+                tempDelegate.delegate_outside = delegate;
+            }
+            [self customSetDelegate:tempDelegate];
+            objc_setAssociatedObject(self, key_tempDelegate, tempDelegate, OBJC_ASSOCIATION_RETAIN);
+        } else {
+            [self customSetDelegate:delegate];
+        }
+    }
+}
 #pragma mark getter setter
 - (void)setYb_inputCP:(YBInputControlProfile *)yb_inputCP {
     @synchronized(self) {

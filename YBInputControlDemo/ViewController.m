@@ -30,29 +30,30 @@
     textfield.frame = CGRectMake(20, 100, [UIScreen mainScreen].bounds.size.width-40, 44);
     [self.view addSubview:textfield];
   
+    
+    
     //链式语法使用
-    textfield.yb_inputCP = YBInputControlProfile.creat.set_maxLength(10).set_textControlType(YBTextControlType_letter).set_textChanged(^(id obj){
-        NSLog(@"%@", [obj valueForKey:@"text"]);
-    });
+//    textfield.yb_inputCP = YBInputControlProfile.creat.set_maxLength(10).set_textControlType(YBTextControlType_letter).set_textChanged(^(id obj){
+//        NSLog(@"%@", [obj valueForKey:@"text"]);
+//    });
     
     //常规方法使用
-//    YBInputControlProfile *profile = [YBInputControlProfile new];
-//    profile.maxLength = 10;
-//    profile.textControlType = YBTextControlType_excludeInvisible;
-//    [profile addTargetOfTextChange:self action:@selector(textChange:)];
-//    textfield.yb_inputCP = profile;
+    YBInputControlProfile *profile = [YBInputControlProfile new];
+    profile.maxLength = 10;
+    profile.textControlType = YBTextControlType_letter;
+    [profile addTargetOfTextChange:self action:@selector(textChange:)];
+    textfield.yb_inputCP = profile;
 //    profile.regularStr = @"^[a-z]*$";
  
     //取消功能
     //textfield.yb_inputCP = nil;
     
-    
     //同样可以按照以往的习惯，设置代理
     textfield.delegate = self;
-    //特别注意
-    //在给textField设置了非自身的delegate，若实现了如下方法，将覆盖本框架的输入实时限制功能（长度限制功能基本有效）：
+    //** 特别注意
+    //在给textField或者textView设置了非自身的delegate，若实现了如下方法，将可能覆盖本框架的输入实时限制功能，对应可能会覆盖的函数是：
 //    - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;
-
+//    - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text;
     
     
 #pragma mark UITextView 的使用
@@ -61,11 +62,11 @@
     textView.backgroundColor = [UIColor orangeColor];
     textView.textColor = [UIColor whiteColor];
     [self.view addSubview:textView];
-    textView.delegate = self;
-    textView.yb_inputCP = YBInputControlProfile.creat.set_textControlType(YBTextControlType_number_letter).set_maxLength(10).set_textChanged(^(id obj){
+    
+    textView.yb_inputCP = YBInputControlProfile.creat.set_textControlType(YBTextControlType_none).set_maxLength(20).set_textChanged(^(id obj){
         NSLog(@"%@", [obj valueForKey:@"text"]);
     });
-    
+    textView.delegate = self;
 }
 
 #pragma mark UITextFieldDelegate
@@ -84,6 +85,11 @@
 - (void)textViewDidChange:(UITextView *)textView {
     yb_textDidChange(textView);
 }
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
+    NSLog(@"%@", NSStringFromSelector(_cmd));
+    return YES;
+}
+
 
 #pragma mark event
 - (void)textChange:(id)obj {
