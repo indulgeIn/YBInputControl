@@ -51,9 +51,8 @@
     //同样可以按照以往的习惯，设置代理
     textfield.delegate = self;
     //** 特别注意
-    //在给textField或者textView设置了非自身的delegate，若实现了如下方法，将可能覆盖本框架的输入实时限制功能，对应可能会覆盖的函数是：
-//    - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;
-//    - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text;
+    //在给 textField 设置了非自身的 delegate，若实现了如下方法，将可能覆盖本框架的输入实时限制功能，对应可能会覆盖的函数是：- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;   解决方法是在其中调用框架方法（若没实现该方法就没什么影响）。
+
     
     
 #pragma mark UITextView 的使用
@@ -63,10 +62,13 @@
     textView.textColor = [UIColor whiteColor];
     [self.view addSubview:textView];
     
-    textView.yb_inputCP = YBInputControlProfile.creat.set_textControlType(YBTextControlType_none).set_maxLength(20).set_textChanged(^(id obj){
+    textView.yb_inputCP = YBInputControlProfile.creat.set_textControlType(YBTextControlType_letter).set_maxLength(20).set_textChanged(^(id obj){
         NSLog(@"%@", [obj valueForKey:@"text"]);
     });
-    textView.delegate = self;
+    
+//    textView.delegate = self;
+    //** 特别注意
+    //在配置了框架属性 yb_inputCP 过后，给 textField 设置了非自身的 delegate ，将直接覆盖本框架的功能，需要在 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text 函数 和 - (void)textViewDidChange:(UITextView *)textView 函数中调用框架方法才能有效。
 }
 
 #pragma mark UITextFieldDelegate
@@ -79,12 +81,12 @@
 }
 
 #pragma mark UITextViewDelegate
-- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
-    return yb_shouldChangeCharactersIn(textView, range, text);
-}
-- (void)textViewDidChange:(UITextView *)textView {
-    yb_textDidChange(textView);
-}
+//- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+//    return yb_shouldChangeCharactersIn(textView, range, text);
+//}
+//- (void)textViewDidChange:(UITextView *)textView {
+//    yb_textDidChange(textView);
+//}
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
     NSLog(@"%@", NSStringFromSelector(_cmd));
     return YES;

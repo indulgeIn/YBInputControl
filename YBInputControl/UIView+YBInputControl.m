@@ -248,9 +248,6 @@ void yb_textDidChange(id target) {
     }
     return [super respondsToSelector:aSelector];
 }
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    NSLog(@"%@", NSStringFromSelector(_cmd));
-}
 - (void)forwardInvocation:(NSInvocation *)anInvocation {
     SEL sel = anInvocation.selector;
     BOOL isResponds = NO;
@@ -344,40 +341,14 @@ void yb_textDidChange(id target) {
 
 
 @implementation UITextView (YBInputControl)
-#pragma mark insert logic to selector--setDelegate:
-+ (void)load {
-    if ([NSStringFromClass(self) isEqualToString:@"UITextField"]) {
-        Method m1 = class_getInstanceMethod(self, @selector(setDelegate:));
-        Method m2 = class_getInstanceMethod(self, @selector(customSetDelegate:));
-        if (m1 && m2) {
-            method_exchangeImplementations(m1, m2);
-        }
-    }
-}
-- (void)customSetDelegate:(id)delegate {
-    @synchronized(self) {
-        if (objc_getAssociatedObject(self, key_Profile)) {
-            YBInputControlTempDelegate *tempDelegate = [YBInputControlTempDelegate new];
-            tempDelegate.delegate_inside = self;
-            if (delegate != self) {
-                tempDelegate.delegate_outside = delegate;
-            }
-            [self customSetDelegate:tempDelegate];
-            objc_setAssociatedObject(self, key_tempDelegate, tempDelegate, OBJC_ASSOCIATION_RETAIN);
-        } else {
-            [self customSetDelegate:delegate];
-        }
-    }
-}
+
 #pragma mark getter setter
 - (void)setYb_inputCP:(YBInputControlProfile *)yb_inputCP {
     @synchronized(self) {
         if (yb_inputCP && [yb_inputCP isKindOfClass:YBInputControlProfile.self]) {
             objc_setAssociatedObject(self, key_Profile, yb_inputCP, OBJC_ASSOCIATION_RETAIN);
             
-            if (!self.delegate) {
-                self.delegate = self;
-            }
+            self.delegate = self;
             self.keyboardType = yb_inputCP.keyboardType;
             self.autocorrectionType = yb_inputCP.autocorrectionType;
         } else {
