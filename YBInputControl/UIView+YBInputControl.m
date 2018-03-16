@@ -300,7 +300,7 @@ void yb_textDidChange(id target) {
                 tempDelegate.delegate_outside = delegate;
             }
             [self customSetDelegate:tempDelegate];
-            objc_setAssociatedObject(self, key_tempDelegate, tempDelegate, OBJC_ASSOCIATION_RETAIN);
+            objc_setAssociatedObject(self, key_tempDelegate, tempDelegate, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         } else {
             [self customSetDelegate:delegate];
         }
@@ -311,14 +311,14 @@ void yb_textDidChange(id target) {
 - (void)setYb_inputCP:(YBInputControlProfile *)yb_inputCP {
     @synchronized(self) {
         if (yb_inputCP && [yb_inputCP isKindOfClass:YBInputControlProfile.self]) {
-            objc_setAssociatedObject(self, key_Profile, yb_inputCP, OBJC_ASSOCIATION_RETAIN);
+            objc_setAssociatedObject(self, key_Profile, yb_inputCP, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
             
             self.delegate = self;
             self.keyboardType = yb_inputCP.keyboardType;
             self.autocorrectionType = yb_inputCP.autocorrectionType;
             yb_inputCP.textChangeInvocation || yb_inputCP.textChanged ? [self addTarget:self action:@selector(textFieldDidChange:) forControlEvents : UIControlEventEditingChanged]:nil;
         } else {
-            objc_setAssociatedObject(self, key_Profile, nil, OBJC_ASSOCIATION_RETAIN);
+            objc_setAssociatedObject(self, key_Profile, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         }
     }
 }
@@ -343,13 +343,13 @@ void yb_textDidChange(id target) {
 - (void)setYb_inputCP:(YBInputControlProfile *)yb_inputCP {
     @synchronized(self) {
         if (yb_inputCP && [yb_inputCP isKindOfClass:YBInputControlProfile.self]) {
-            objc_setAssociatedObject(self, key_Profile, yb_inputCP, OBJC_ASSOCIATION_RETAIN);
+            objc_setAssociatedObject(self, key_Profile, yb_inputCP, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
             
             self.delegate = self;
             self.keyboardType = yb_inputCP.keyboardType;
             self.autocorrectionType = yb_inputCP.autocorrectionType;
         } else {
-            objc_setAssociatedObject(self, key_Profile, nil, OBJC_ASSOCIATION_RETAIN);
+            objc_setAssociatedObject(self, key_Profile, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         }
     }
 }
