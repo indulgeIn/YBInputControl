@@ -68,7 +68,7 @@
     
 //    textView.delegate = self;
     //** 特别注意
-    //在配置了框架属性 yb_inputCP 过后，给 textField 设置了非自身的 delegate ，将直接覆盖本框架的功能，需要在 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text 函数 和 - (void)textViewDidChange:(UITextView *)textView 函数中调用框架方法才能有效。
+    //在配置了框架属性 yb_inputCP 过后，给 textView 设置了非自身的 delegate ，将直接覆盖本框架的功能，需要在 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text 函数 和 - (void)textViewDidChange:(UITextView *)textView 函数中调用框架方法才能有效。
 }
 
 #pragma mark UITextFieldDelegate
