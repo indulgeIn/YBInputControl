@@ -296,7 +296,9 @@ void yb_textDidChange(id target) {
         if (objc_getAssociatedObject(self, key_Profile)) {
             YBInputControlTempDelegate *tempDelegate = [YBInputControlTempDelegate new];
             tempDelegate.delegate_inside = self;
-            if (delegate != self) {
+            if (self.delegate && delegate == self) {
+                tempDelegate.delegate_outside = self.delegate;
+            } else {
                 tempDelegate.delegate_outside = delegate;
             }
             [self customSetDelegate:tempDelegate];
