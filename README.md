@@ -83,9 +83,11 @@ textfield.yb_inputCP = profile;
 
 ## UITextView 使用
 
+若不额外设置`UITextView`的`delegate`属性时，使用和`UITextFiled`一样，不需往下看了。
 
-`UITextView`的使用和`UITextField`几乎一样，但是有个地方存在差异。由于`UITextView`的继承特性等一系列复杂的原因，暂时无法减少对其的侵入性。
-所以如果你配置了`yb_inputCP`过后，还监听了代理:`textView.delegate = self;`那么该框架的功能将会失效，若你仍然想使其有效，必须实现如下操作:
+若你配置了`UITextView`的`yb_inputCP`属性过后，仍然想要配置`UITextView`的`delegate`。由于`UITextView`的继承特性等一系列复杂的原因，暂时无法减少对其的侵入性。对于`UITextView`来说，当`delegate`是非自身的情况下，`yb_inputCP`属性和`delegate`属性是互斥的，意味着后配置的会覆盖先配置的，因为配置`yb_inputCP`属性时内部是将`UITextView`的`delegate`设置为自身。
+
+若你先配置了`yb_inputCP`，后配置:`textView.delegate = otherTarget;`那么该框架的功能将会失效，若你仍然想使其有效，必须实现如下操作:
 
 <pre><code>- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
    return yb_shouldChangeCharactersIn(textView, range, text);
@@ -94,3 +96,5 @@ textfield.yb_inputCP = profile;
    yb_textDidChange(textView);
 }
 </code></pre>
+
+若你先配置了`textView.delegate = otherTarget;`，后配置`yb_inputCP`，那`otherTarget`对代理方法的回调将全部失效。
