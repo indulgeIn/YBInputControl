@@ -67,15 +67,22 @@ void yb_textDidChange(id target) {
     //内容适配
     if (profile.maxLength != NSUIntegerMax && [target valueForKey:@"markedTextRange"] == nil) {
         NSString *resultText = [target valueForKey:@"text"];
-        //先内容过滤
-        if (profile.textControlType == YBTextControlType_excludeInvisible) {
-            resultText = [[target valueForKey:@"text"] stringByReplacingOccurrencesOfString:@" " withString:@""];
-        }
-        //再判断长度
-        if (resultText.length > profile.maxLength) {
-            [target setValue:[resultText substringToIndex:profile.maxLength] forKey:@"text"];
-        } else {
-            [target setValue:resultText forKey:@"text"];
+        if ([target isKindOfClass:UITextView.class]) {
+            //如果是 UITextView, 不需要过滤空格，未超过最大限制也不要调用 setText: 方法（setText:会导致光标自动移动到尾部）
+            if (resultText.length > profile.maxLength) {
+                [target setValue:[resultText substringToIndex:profile.maxLength] forKey:@"text"];
+            }
+        } else if ([target isKindOfClass:UITextField.class]) {
+            //先内容过滤
+            if (profile.textControlType == YBTextControlType_excludeInvisible) {
+                resultText = [[target valueForKey:@"text"] stringByReplacingOccurrencesOfString:@" " withString:@""];
+            }
+            //再判断长度
+            if (resultText.length > profile.maxLength) {
+                [target setValue:[resultText substringToIndex:profile.maxLength] forKey:@"text"];
+            } else {
+                [target setValue:resultText forKey:@"text"];
+            }
         }
     }
     //回调
@@ -296,7 +303,9 @@ void yb_textDidChange(id target) {
         if (objc_getAssociatedObject(self, key_Profile)) {
             YBInputControlTempDelegate *tempDelegate = [YBInputControlTempDelegate new];
             tempDelegate.delegate_inside = self;
-            if (delegate != self) {
+            if (self.delegate && delegate == self) {
+                tempDelegate.delegate_outside = self.delegate;
+            } else {
                 tempDelegate.delegate_outside = delegate;
             }
             [self customSetDelegate:tempDelegate];
