@@ -337,9 +337,15 @@ void yb_textDidChange(id target) {
 
 #pragma mark UITextFieldDelegate
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    UITextRange *selectedRange = [textField markedTextRange];
+    UITextPosition *position = [textField positionFromPosition:selectedRange.start offset:0];
+    if (position) return YES;
     return yb_shouldChangeCharactersIn(textField, range, string);
 }
 - (void)textFieldDidChange:(UITextField *)textField {
+    UITextRange *selectedRange = [textField markedTextRange];
+    UITextPosition *position = [textField positionFromPosition:selectedRange.start offset:0];
+    if (position) return;
     yb_textDidChange(textField);
 }
 
@@ -368,9 +374,15 @@ void yb_textDidChange(id target) {
 
 #pragma mark UITextViewDelegate
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+    UITextRange *selectedRange = [textView markedTextRange];
+    UITextPosition *position = [textView positionFromPosition:selectedRange.start offset:0];
+    if (position) return YES;
     return yb_shouldChangeCharactersIn(textView, range, text);
 }
 - (void)textViewDidChange:(UITextView *)textView {
+    UITextRange *selectedRange = [textView markedTextRange];
+    UITextPosition *position = [textView positionFromPosition:selectedRange.start offset:0];
+    if (position) return;
     yb_textDidChange(textView);
 }
 
